@@ -1,6 +1,4 @@
-# Projects in Rust
-
-## kvstore
+# Project kvstore
 Project from Ryan Levick on Youtube
 
 Allows a user to insert a pair of key/value into a database file
