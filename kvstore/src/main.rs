@@ -10,15 +10,13 @@ fn main() {
     let key = args.next().unwrap(); // gets the next argument
     let value = args.next().unwrap(); // gets the next argument
 
-    let contents = format!("{}\t{}\n", key, value);
-    
-    std::fs::write(DB_FILE_PATH, contents).unwrap();
-
-    println!("Key: {:?}  | Value: {:?}", key, value);
-
     // Run with arguments  : cargo r -- arg arg
+    // the "--" separates the run command from the arguments
 
-    let database = Database::new().expect("Creating DB failed");
+    let mut database = Database::new().expect("Creating DB failed");
+    database.insert(key.to_uppercase(), value.clone());
+    database.insert(key, value);
+    database.flush().unwrap();
 
 }
 
@@ -56,6 +54,26 @@ impl Database {
         Ok(Database{
             map: tmp_map
         })
+    }
+
+    // insert is a method because we have the argument "self"
+    // if we didn't have self, we would need to pass the database as an argument
+    // e.g : Database::insert(database, key, value), instead of database.insert(key, value)
+    fn insert(&mut self, key: String, value: String){
+        // self is the database object instantiated
+        // the insert method comes with Hashmaps : std::collections::hash::map:HashMap
+        self.map.insert(key,value);
+    }
+
+    fn flush(self) -> std::io::Result<()> {
+        let mut contents = String::new();
+        for (key, value) in &self.map {
+            contents.push_str(key);
+            contents.push('\t');
+            contents.push_str(value);
+            contents.push('\n');
+        }
+        std::fs::write(DB_FILE_PATH, contents)
     }
 }
 
